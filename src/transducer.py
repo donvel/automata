@@ -4,10 +4,9 @@ import algorithms
 
 class State(object):
 
-    def __init__(self, alp, name):
-        self.alphabet = alp
+    def __init__(self, name):
         self.name = name
-        self.trans = dict((l, None) for l in alp)
+        self.trans = {}
 
     def add_trans(self, let, out, to):
         self.trans[let] = (out, to)
@@ -26,9 +25,18 @@ class MealyMachine(object):
         if name is None:
             name = 'v' + str(self.name_suffix)
             self.name_suffix += 1
-        s = State(self.alphabet, name)
+        s = State(name)
         self.states.add(s)
         return s
+
+    def transition(self, state, word):
+        cstate = state
+        output = ''
+        for c in word:
+            (out, to) = cstate.trans[c]
+            output += out
+            cstate = to
+        return (output, cstate)
 
 class InitialAutomaton(object):
 
@@ -53,7 +61,11 @@ class InitialAutomaton(object):
 
     def get_minimized(self):
         clone = self.get_reachable()
-        minimized = algorithms.minimize(clone.machine, clone.init_state)
+        return algorithms.minimize(clone)
+
+    def output(self, word):
+        return self.machine.transition(self.init_state, word)[0]
+
 
 def test():
     X = {'0', '1'}
@@ -84,9 +96,35 @@ def test():
     
     drawer.get_graph(aut0_reach).draw('ThompsonFReach.png', prog='dot')
     
-    aut1_early = aut1.get_early()
+    #aut1_early = aut1.get_early()
     
-    drawer.get_graph(aut1_early).draw('ThompsonFEarly.png', prog='dot')
+    #drawer.get_graph(aut1_early).draw('ThompsonFEarly.png', prog='dot')
+
+    dup = MealyMachine(X, 'Duplicated')
+
+    a = dup.add_state('a')
+    b1 = dup.add_state('b1')
+    b2 = dup.add_state('b2')
+    c = dup.add_state('c')
+    
+    a.add_trans('1', '011', b1)
+    a.add_trans('0', '1011', b2)
+    b1.add_trans('0', '01', b2)
+    b1.add_trans('1', '101', c)
+    b2.add_trans('0', '01', b2)
+    b2.add_trans('1', '101', c)
+    c.add_trans('0', '111', b1)
+    c.add_trans('1', '111', a)
+
+    autd = InitialAutomaton(dup, a)
+    
+    autd_mini = autd.get_minimized()
+
+    drawer.get_graph(autd).draw('Dup.png', prog='dot')
+    drawer.get_graph(autd_mini).draw('DupMini.png', prog='dot')
+
+    print autd.output('010010010101001111')
+    print autd_mini.output('010010010101001111')
 
     """
 
