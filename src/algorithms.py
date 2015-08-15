@@ -44,15 +44,17 @@ def mul_machines(mch1, mch2):
     pair_to_state = {}
 
     for st1 in mch1.states:
-        for st2 in mch2.states
-            pair_to_state[st1, st2] = res.add_state(st1.name + 'x' + st2.name)
+        for st2 in mch2.states:
+            pair_to_state[st1, st2] = res.add_state(st1.name + ', ' + st2.name)
 
     for st1 in mch1.states:
         for st2 in mch2.states:
             st = pair_to_state[st1, st2]
             for (let, (out1, to1)) in st1.trans.items():
-                (out2, to2) = mch2.transition(st2, out)
-                st.add_trans(let, pair_to_state[to1, to2])
+                (out2, to2) = mch2.transition(st2, out1)
+                st.add_trans(let, out2, pair_to_state[to1, to2])
+    return (res, pair_to_state)
 
 def mul_automata(aut1, aut2):
-    pass
+    res, pair_to_state = mul_machines(aut1.machine, aut2.machine)
+    return InitialAutomaton(res, pair_to_state[aut1.init_state, aut2.init_state])

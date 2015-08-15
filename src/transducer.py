@@ -1,6 +1,7 @@
 import drawer
 import copy
 import algorithms
+import graphs
 
 class State(object):
 
@@ -89,16 +90,16 @@ def test():
     aut1 = InitialAutomaton(mch, x1)
  
     graph = drawer.get_graph(aut0)
-    graph.draw('ThompsonF.png', prog='dot')
+    graph.draw('ThompsonF.svg', prog='dot')
 
 
     aut0_reach = aut0.get_reachable()
     
-    drawer.get_graph(aut0_reach).draw('ThompsonFReach.png', prog='dot')
+    drawer.get_graph(aut0_reach).draw('ThompsonFReach.svg', prog='dot')
     
     #aut1_early = aut1.get_early()
     
-    #drawer.get_graph(aut1_early).draw('ThompsonFEarly.png', prog='dot')
+    #drawer.get_graph(aut1_early).draw('ThompsonFEarly.svg', prog='dot')
 
     dup = MealyMachine(X, 'Duplicated')
 
@@ -120,11 +121,19 @@ def test():
     
     autd_mini = autd.get_minimized()
 
-    drawer.get_graph(autd).draw('Dup.png', prog='dot')
-    drawer.get_graph(autd_mini).draw('DupMini.png', prog='dot')
+    drawer.get_graph(autd).draw('Dup.svg', prog='dot')
+    drawer.get_graph(autd_mini).draw('DupMini.svg', prog='dot')
 
     print autd.output('010010010101001111')
     print autd_mini.output('010010010101001111')
+
+    aut_mul = algorithms.mul_automata(aut0.get_reachable(), aut1.get_reachable()).get_reachable()
+    drawer.get_graph(aut_mul).draw('Multi.svg', prog='dot')
+
+    gr = graphs.machine_to_graph(aut0.machine)[1]
+    drawer.prepare_graph(gr).draw('ThompsonFGraph.svg', prog='dot')
+    graphs.compute_laziness(gr)
+    drawer.prepare_graph(gr).draw('ThompsonFGraphLazy.svg', prog='dot')
 
     """
 
