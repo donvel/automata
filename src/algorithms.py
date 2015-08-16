@@ -1,6 +1,9 @@
 
 from collections import defaultdict
-from transducer import MealyMachine, InitialAutomaton
+from transducer import MealyMachine, InitialAutomaton, State
+from string_alg import word_minus
+import graphs
+import copy
 
 def minimize(automaton):
     
@@ -58,3 +61,27 @@ def mul_machines(mch1, mch2):
 def mul_automata(aut1, aut2):
     res, pair_to_state = mul_machines(aut1.machine, aut2.machine)
     return InitialAutomaton(res, pair_to_state[aut1.init_state, aut2.init_state])
+
+def get_nonlazy(aut):
+    aut = copy.deepcopy(aut)
+    state_to_node, gr = graphs.machine_to_graph(aut.machine)
+    graphs.compute_laziness(gr)
+  
+
+    init_node = state_to_node[aut.init_state]
+    new_init = aut.machine.add_state("-1")
+    for (let, (out, to)) in aut.init_state.trans.iteritems():
+        new_init.add_trans(let, out + state_to_node[to].lazy_word, to)
+    aut.init_state = new_init
+
+    for state in aut.machine.states:
+        if state != new_init:
+            node_from = state_to_node[state]
+            for (let, (out, to)) in state.trans.items():
+                node_to = state_to_node[to]
+                state.trans[let] = \
+                    (word_minus(out + node_to.lazy_word, node_from.lazy_word),
+                            to)
+
+    return aut
+

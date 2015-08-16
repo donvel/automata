@@ -73,11 +73,12 @@ def prepare_lazy_graph(nodes):
     for node in nodes:
         node_name[node] = it
         it += 1
-        graph.add_node(n=node_name[node], shape='circle') #, label="")
+        graph.add_node(n=node_name[node], shape='circle',
+            label=node.lazy_word) #, label="")
 
     for node in nodes:
         for (out, to) in node.edges:
-            label = (out if out else 'e') + ' | ' + out.lazy_word
-            graph.add_edge(node_name[node], node_name[to], label=label)
+            graph.add_edge(node_name[node], node_name[to],
+                label=(out if out else 'e'))
 
     return graph

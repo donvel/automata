@@ -53,7 +53,7 @@ def compute_laziness(nodes):
             if n.lazy >= k - 1:
                 good = True
                 kth_letters = set()
-                for (out, to) in n.trans:
+                for (out, to) in n.edges:
                     if len(out) + to.lazy < k:
                         good = False
                         break

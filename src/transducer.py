@@ -20,6 +20,7 @@ class MealyMachine(object):
         self.alphabet = alp
         self.name = name
         self.states = set()
+        self.state_names = set()
         self.name_suffix = 1
 
     def add_state(self, name=None):
@@ -27,6 +28,8 @@ class MealyMachine(object):
             name = 'v' + str(self.name_suffix)
             self.name_suffix += 1
         s = State(name)
+        assert name not in self.state_names
+        self.state_names.add(name)
         self.states.add(s)
         return s
 
@@ -130,10 +133,28 @@ def test():
     aut_mul = algorithms.mul_automata(aut0.get_reachable(), aut1.get_reachable()).get_reachable()
     drawer.get_graph(aut_mul).draw('Multi.svg', prog='dot')
 
-    gr = graphs.machine_to_graph(aut0.machine)[1]
-    drawer.prepare_graph(gr).draw('ThompsonFGraph.svg', prog='dot')
+    mch = MealyMachine(X, 'Lazy Automaton')
+    a = mch.add_state('a')
+    b = mch.add_state('b')
+    c = mch.add_state('c')
+    a.add_trans('0', '01', c)
+    a.add_trans('1', '0', b)
+    b.add_trans('0', '11', c)
+    b.add_trans('1', '10', c)
+    c.add_trans('0', '01', c)
+    c.add_trans('1', '0', c)
+
+    aut_lazy = InitialAutomaton(mch, a)
+    drawer.get_graph(aut_lazy).draw('Lazy.svg', prog='dot')
+    
+    gr = graphs.machine_to_graph(aut_lazy.machine)[1]
+    drawer.prepare_graph(gr).draw('AutLazyGraph.svg', prog='dot')
     graphs.compute_laziness(gr)
-    drawer.prepare_graph(gr).draw('ThompsonFGraphLazy.svg', prog='dot')
+    drawer.prepare_lazy_graph(gr).draw('AutLazyGraphLazy.svg', prog='dot')
+
+
+    nonlazy = algorithms.get_nonlazy(aut_lazy)
+    drawer.get_graph(nonlazy).draw('Nonlazy.svg', prog='dot')
 
     """
 
