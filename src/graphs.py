@@ -1,3 +1,4 @@
+import string_alg
 from collections import defaultdict
 
 class Node(object):
@@ -5,7 +6,9 @@ class Node(object):
         self.edges = []
         self.lazy = 0
         self.lazy_word = ""
+        self.inf_word = False
         self.vis = -1
+        self.period = -1
 
 def dfs(n, it):
     n.vis = 0
@@ -67,3 +70,7 @@ def compute_laziness(nodes):
                 if good:
                     n.lazy = k
                     n.lazy_word += kth_letters.pop()
+    for n in nodes:
+        if n.lazy == 3 * N:
+            n.inf_word = True
+            n.period = string_alg.get_period(n.lazy_word[N:])

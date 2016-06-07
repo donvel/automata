@@ -70,6 +70,12 @@ class InitialAutomaton(object):
     def output(self, word):
         return self.machine.transition(self.init_state, word)[0]
 
+    def get_nonlazy(self):
+        return algorithms.get_nonlazy(self)
+
+    def get_canonical(self):
+        return self.get_nonlazy().get_minimized()
+
 
 def test():
     X = {'0', '1'}
@@ -155,6 +161,26 @@ def test():
 
     nonlazy = algorithms.get_nonlazy(aut_lazy)
     drawer.get_graph(nonlazy).draw('Nonlazy.svg', prog='dot')
+
+    mch = MealyMachine(X, 'Lazy Loop Automaton')
+    a = mch.add_state('a')
+    a.add_trans('0', '01', a)
+    a.add_trans('1', '01', a)
+    aut_loop = InitialAutomaton(mch, a)
+
+    gr = graphs.machine_to_graph(aut_loop.machine)[1]
+    drawer.prepare_graph(gr).draw('AutLazyLoopGraph.svg', prog='dot')
+    graphs.compute_laziness(gr)
+    drawer.prepare_lazy_graph(gr).draw('AutLazyLoopGraphLazy.svg', prog='dot')
+    nonlazy = aut_loop.get_nonlazy()
+    drawer.get_graph(nonlazy).draw('NonlazyLoop.svg', prog='dot')
+    drawer.get_graph(nonlazy.get_minimized()).draw('NonlazyLoop.svg', prog='dot')
+    
+    
+    drawer.get_graph(aut_loop.get_canonical()).draw('CanonLoop.svg', prog='dot')
+    drawer.get_graph(aut_lazy.get_canonical()).draw('CanonLazy.svg', prog='dot')
+    drawer.get_graph(aut_mul.get_canonical()).draw('CanonMulti.svg', prog='dot')
+    drawer.get_graph(aut0.get_canonical()).draw('CanonThomp.svg', prog='dot')
 
     """
 
